@@ -14,6 +14,8 @@ const { throwValidationException } = require('../utils/ExceptionUtils');
 const OperationResultStatus = require('../commands/OperationResultStatus');
 const SDKOperationResultUtils = require('../utils/SDKOperationResultUtils');
 const NodeUtils = require('../utils/NodeUtils');
+const ERROR_CODE = 1;
+const SUCCESS_CODE = 0;
 
 module.exports = class CommandActionExecutor {
 	constructor(dependencies) {
@@ -87,22 +89,37 @@ module.exports = class CommandActionExecutor {
 
 			if (actionResult && actionResult.operationResult) {
 				const operationResult = actionResult.operationResult;
-				if (operationResult.status === OperationResultStatus.SUCCESS && commandUserExtension.onCompleted) {
-					commandUserExtension.onCompleted(actionResult);
-				} else if (operationResult.status === OperationResultStatus.ERROR && commandUserExtension.onError) {
+				if (operationResult.status === OperationResultStatus.SUCCESS) {
+					if (commandUserExtension.onCompleted) {
+						commandUserExtension.onCompleted(actionResult);
+					}
+					return SUCCESS_CODE;
+				}
+				else if (operationResult.status === OperationResultStatus.ERROR) {
+					if (commandUserExtension.onError) {
 					const error = SDKOperationResultUtils.getResultMessage(operationResult)
 						+ NodeUtils.lineBreak
 						+ SDKOperationResultUtils.getErrorMessagesString(operationResult);
 					commandUserExtension.onError(error);
+					}
+					return ERROR_CODE
+				}
+			}
+			else {
+				if (actionResult.status === OperationResultStatus.SUCCESS) {
+					return SUCCESS_CODE;
+				}
+				else {
+					return ERROR_CODE;
 				}
 			}
 
-			return actionResult;
 		} catch (error) {
 			this._commandOutputHandler.showErrorResult(error);
 			if (commandUserExtension && commandUserExtension.onError) {
 				commandUserExtension.onError(error);
 			}
+			return ERROR_CODE;
 		}
 	}
 

@@ -47,8 +47,9 @@ module.exports = class CommandRegistrationService {
 			);
 		}
 
-		commandSetup.description(commandMetadata.description).action(options => {
-			executeCommandFunction(options);
+		commandSetup.description(commandMetadata.description).action(async (options) => {
+			var result = await executeCommandFunction(options);
+			process.exitCode = result;
 		});
 	}
 

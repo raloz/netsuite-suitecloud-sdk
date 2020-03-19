@@ -4,13 +4,50 @@
         "alias": "sa",
         "description": "Sets up an account to use with the SuiteCloud CLI for Node.js.",
         "isSetupRequired": false,
-        "forceInteractiveMode": true,
+        "forceInteractiveMode": false,
         "options": [
             {
                 "name": "dev",
                 "alias": "d",
                 "description": "Specify the domain URL of the account you want to use. You only need to specify the domain URL if you are not using a production account.",
                 "type": "FLAG",
+                "mandatory": false
+            },
+            {
+                "name": "url",
+                "alias": "u",
+                "description": "Url.",
+                "mandatory": false
+            },
+            {
+                "name": "savetoken",
+                "alias": "s",
+                "description": "Save token.",
+                "type": "FLAG",
+                "mandatory": false
+            },
+            {
+                "name": "newauthid",
+                "alias": "n",
+                "description": "New Auth Id to be created.",
+                "mandatory": false
+            },
+            {
+                "name": "tokenid",
+                "alias": "k",
+                "description": "Token Id.",
+                "mandatory": false
+            },
+            {
+                "name": "tokensecret",
+                "alias": "s",
+                "description": "Token secret.",
+                "mandatory": false
+            },
+            {
+                "name": "account",
+                "alias": "t",
+                "description": "Account.",
                 "mandatory": false
             }
         ]
