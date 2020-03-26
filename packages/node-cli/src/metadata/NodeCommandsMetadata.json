@@ -60,5 +60,26 @@
                 "mandatory": false
             }
         ]
+    },
+    "project:publish": {
+        "name": "project:publish",
+        "description": "Publishes SuiteApp to SuiteApp Control Center.",
+        "isSetupRequired": true,
+        "options": [
+            {
+                "name": "nsversion",
+                "alias": "v",
+                "description": "Enter the minimal required NetSuite version for the SuiteApp.",
+                "type": "SINGLE",
+                "mandatory": true
+            },
+            {
+                "name": "phasing",
+                "alias": "p",
+                "description": "Enter the phase for your SuiteApp - leading or lagging.",
+                "type": "SINGLE",
+                "mandatory": true
+            }
+        ]
     }
 }

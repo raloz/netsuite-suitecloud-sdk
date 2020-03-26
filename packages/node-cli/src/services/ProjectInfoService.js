@@ -61,11 +61,7 @@ module.exports = class ProjectInfoService {
 		return newValue;
 	}
 
-	getProjectType() {
-		if (CACHED_PROJECT_TYPE) {
-			return CACHED_PROJECT_TYPE;
-		}
-
+	_getManifestAsString() {
 		const manifestPath = path.join(this._projectFolder, FILES.MANIFEST_XML);
 
 		if (!FileUtils.exists(manifestPath)) {
@@ -85,6 +81,42 @@ module.exports = class ProjectInfoService {
 				TranslationService.getMessage(ERRORS.XML_MANIFEST_TAG_MISSING);
 			throw new CLIException(-10, errorMessage);
 		}
+
+		return manifestString;
+	}
+
+	getProjectVersion() {
+		const manifestString = this._getManifestAsString();
+		let projectVersion = '';
+		let parser = new xml2js.Parser({ validator: this._validateXml });
+		parser.parseString(manifestString, function(err, result) {
+			if (result) {
+				projectVersion = result.manifest.projectversion;
+			}
+		});
+
+		return projectVersion;
+	}
+
+	getApplicationId() {
+		const manifestString = this._getManifestAsString();
+		let appId;
+		let parser = new xml2js.Parser({ validator: this._validateXml });
+		parser.parseString(manifestString, function(err, result) {
+			if (result) {
+				appId = `${result.manifest.publisherid}.${result.manifest.projectid}`;
+			}
+		});
+		return appId;
+	}
+
+	getProjectType() {
+		if (CACHED_PROJECT_TYPE) {
+			return CACHED_PROJECT_TYPE;
+		}
+
+		const manifestString = this._getManifestAsString();
+
 		let projectType;
 		let validationError;
 
