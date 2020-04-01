@@ -222,13 +222,11 @@ module.exports = class SetupCommandGenerator extends BaseCommandGenerator {
 			const executeActionContext = {
 				developmentMode: developmentMode,
 				createNewAuthentication: true,
-				newAuthId: newAuthenticationAnswers[ANSWERS.NEW_AUTH_ID],
+				newauthid: newAuthenticationAnswers[ANSWERS.NEW_AUTH_ID],
 				mode: newAuthenticationAnswers[ANSWERS.AUTH_MODE],
-				saveToken: {
-					account: newAuthenticationAnswers[ANSWERS.SAVE_TOKEN_ACCOUNT_ID],
-					tokenId: newAuthenticationAnswers[ANSWERS.SAVE_TOKEN_ID],
-					tokenSecret: newAuthenticationAnswers[ANSWERS.SAVE_TOKEN_SECRET],
-				}
+				account: newAuthenticationAnswers[ANSWERS.SAVE_TOKEN_ACCOUNT_ID],
+				savetoken: newAuthenticationAnswers[ANSWERS.SAVE_TOKEN_ID],
+				tokensecret: newAuthenticationAnswers[ANSWERS.SAVE_TOKEN_SECRET],
 			};
 
 			if (developmentModeUrlAnswer) {
@@ -248,9 +246,15 @@ module.exports = class SetupCommandGenerator extends BaseCommandGenerator {
 	async _executeAction(executeActionContext) {
 		let authId;
 		let accountInfo;
+		if (executeActionContext.savetoken === true) {
+			executeActionContext.mode = AUTH_MODE.SAVE_TOKEN;
+		}
+		if (executeActionContext.dev === true) {
+			executeActionContext.developmentMode = true;
+		}
 		if (executeActionContext.mode === AUTH_MODE.OAUTH) {
 			const commandParams = {
-				authId: executeActionContext.newAuthId,
+				authId: executeActionContext.newauthid,
 			};
 
 			if (executeActionContext.url) {
@@ -258,14 +262,14 @@ module.exports = class SetupCommandGenerator extends BaseCommandGenerator {
 			}
 
 			const operationResult = await this._performBrowserBasedAuthentication(commandParams, executeActionContext.developmentMode);
-			authId = executeActionContext.newAuthId;
+			authId = executeActionContext.newauthid;
 			accountInfo = operationResult.data.accountInfo;
-		} else if (executeActionContext.mode === AUTH_MODE.SAVE_TOKEN) {
+		} else if (executeActionContext.mode === AUTH_MODE.SAVE_TOKEN || executeActionContext.savetoken === true) {
 			const commandParams = {
-				authid: executeActionContext.newAuthId,
-				account: executeActionContext.saveToken.account,
-				tokenid: executeActionContext.saveToken.tokenId,
-				tokensecret: executeActionContext.saveToken.tokenSecret,
+				authid: executeActionContext.newauthid,
+				account: executeActionContext.account,
+				tokenid: executeActionContext.tokenid,
+				tokensecret: executeActionContext.tokensecret,
 			};
 
 			if (executeActionContext.url) {
@@ -273,7 +277,7 @@ module.exports = class SetupCommandGenerator extends BaseCommandGenerator {
 			}
 
 			const operationResult = await this._saveToken(commandParams, executeActionContext.developmentMode);
-			authId = executeActionContext.newAuthId;
+			authId = executeActionContext.newauthid;
 			accountInfo = operationResult.data.accountInfo;
 		} else if (executeActionContext.mode === AUTH_MODE.REUSE) {
 			authId = executeActionContext.authentication.authId;
@@ -311,24 +315,29 @@ module.exports = class SetupCommandGenerator extends BaseCommandGenerator {
 	}
 
 	async _saveToken(params, developmentMode) {
-		const executionContextOptions = {
-			command: COMMANDS.AUTHENTICATE,
-			params,
-			flags: [FLAGS.SAVETOKEN]
-		};
-
-		if (developmentMode) {
-			executionContextOptions.flags.push(FLAGS.DEVELOPMENTMODE);
+		let operationResult = {};
+		if (!params.authid || !params.account || !params.tokenid || !params.tokensecret) {
+			operationResult = {
+				status: OperationResultStatus.ERROR,
+				resultMessage: "missing parameters"
+			};
 		}
-
-		const executionContext = new SDKExecutionContext(executionContextOptions);
-
-		const operationResult = await executeWithSpinner({
-			action: this._sdkExecutor.execute(executionContext),
-			message: TranslationService.getMessage(MESSAGES.SAVING_TBA_TOKEN),
-		});
+		else {
+			const executionContextOptions = {
+				command: COMMANDS.AUTHENTICATE,
+				params,
+				flags: [FLAGS.SAVETOKEN]
+			};
+			if (developmentMode) {
+				executionContextOptions.flags.push(FLAGS.DEVELOPMENTMODE);
+			}
+			const executionContext = new SDKExecutionContext(executionContextOptions);
+			operationResult = await executeWithSpinner({
+				action: this._sdkExecutor.execute(executionContext),
+				message: TranslationService.getMessage(MESSAGES.SAVING_TBA_TOKEN),
+			});
+		}
 		this._checkOperationResultIsSuccessful(operationResult);
-
 		return operationResult;
 	}
 
@@ -341,7 +350,7 @@ module.exports = class SetupCommandGenerator extends BaseCommandGenerator {
 					actionResult.accountInfo.companyName,
 					actionResult.accountInfo.roleName,
 					actionResult.authId
-					);
+				);
 				break;
 			case AUTH_MODE.SAVE_TOKEN:
 				resultMessage = TranslationService.getMessage(
