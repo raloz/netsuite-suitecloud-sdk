@@ -1,6 +1,6 @@
 {
 	"name": "@suiteworld/suitecloud-cli",
-	"version": "1.0.2",
+	"version": "1.0.0",
 	"license": "UPL-1.0",
 	"description": "SuiteCloud CLI for Node.js",
 	"keywords": [
