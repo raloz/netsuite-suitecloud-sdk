@@ -1,4 +1,4 @@
-const SuiteCloudJestConfiguration = require("@oracle/suiteworld-unit-testing/jest-configuration/SuiteCloudJestConfiguration");
+const SuiteCloudJestConfiguration = require("@suiteworld/suitecloud-unit-testing/jest-configuration/SuiteCloudJestConfiguration");
 const cliConfig = require("./suitecloud.config");
 
 module.exports = SuiteCloudJestConfiguration.build({

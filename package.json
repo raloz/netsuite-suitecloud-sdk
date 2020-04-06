@@ -1,6 +1,6 @@
 {
-  "name": "@oracle/suiteworld-sdk",
-  "version": "1.0.1",
+  "name": "@suiteworld/suitecloud-sdk",
+  "version": "1.0.0",
   "license": "UPL-1.0",
   "private": true,
   "devDependencies": {

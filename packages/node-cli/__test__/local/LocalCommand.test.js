@@ -5,7 +5,7 @@
 
 'use strict';
 
-const LocalCommand = require('@oracle/suiteworld-cli-localserver-command/src/LocalCommand');
+const LocalCommand = require('@suiteworld/suitecloud-cli-localserver-command/src/LocalCommand');
 
 let localCommand;
 
